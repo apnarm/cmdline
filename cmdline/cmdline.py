@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
 Partial command line parser
-Purpose: add switches with actions to a command line processor
+Purpose: add switches with actions to an existing command line processor
 
 Accepts an array of options with members as follows:
 """
-from typing import NamedTuple, List, Callable
+from typing import NamedTuple, Sequence, Callable
 
 __all__ = (
     'Option',
@@ -17,10 +17,10 @@ __all__ = (
 class Option(NamedTuple):
     short: str
     long: str
-    hasarg: bool = False
+    has_arg: bool = False
 
 
-def system_args(options: List[Option], process: Callable, error: Callable =None):
+def system_args(options: Sequence[Option], process: Callable, error: Callable = None):
     import sys
 
     prog = sys.argv[0]
@@ -30,27 +30,30 @@ def system_args(options: List[Option], process: Callable, error: Callable =None)
     sys.argv = tuple([prog] + list(args))
 
 
-
-def cmdline_args(argv, options: List[Option], process: Callable, error: Callable =None):
+def cmdline_args(argv: Sequence[str], options: Sequence[Option], process: Callable, error: Callable = None) \
+        -> Sequence[str]:
     """
     Take an array of command line args, process them
     :param argv: argument array
+    :param options: sequence of options to parse
     :param process: process function
     :param error: error function
     :return: remaining unprocessed arguments
     """
-    def select_option(shortopt, longopt):
+
+    def select_option(short_opt, long_opt):
         selected_option = None
-        for option in options:
-            if shortopt is not None and shortopt == option.short:
-                selected_option = option
+        for current_opt in options:
+            if short_opt is not None and short_opt == current_opt.short:
+                selected_option = current_opt
                 break
-            elif longopt is not None and option.long is not None and option.long.startswith(longopt):
-                selected_option = option
+            elif long_opt is not None and current_opt.long is not None and current_opt.long.startswith(long_opt):
+                selected_option = current_opt
                 break
         else:
             if error is not None:
-                error(f"unknown {'short' if shortopt else 'long'} option - '{shortopt if shortopt is not None else longopt}'")
+                error(f"unknown {'short' if short_opt else 'long'} option - "
+                      f"'{short_opt if short_opt is not None else long_opt}'")
         return selected_option
 
     index = 0
@@ -58,20 +61,20 @@ def cmdline_args(argv, options: List[Option], process: Callable, error: Callable
     for index, arg in enumerate(argv):
         if skip_count:
             skip_count -= 1
-        elif arg.startswith('--'):   # longarg
+        elif arg.startswith('--'):  # long arg
             skip_count = 0
             longopt = arg[2:]
             option = select_option(None, longopt)
-            if option.hasarg:
+            if option.has_arg:
                 skip_count += 1
-            process(option, longopt, argv[index+1] if option.hasarg else None)
+            process(option, longopt, argv[index + 1] if option.has_arg else None)
         elif arg.startswith('-'):
             skip_count = 0
-            for shortopt in arg[1:]:
-                option = select_option(shortopt, None)
-                if option.hasarg:
+            for opt in arg[1:]:
+                option = select_option(opt, None)
+                if option.has_arg:
                     skip_count += 1
-                process(option, shortopt, argv[index+skip_count] if option.hasarg else None)
+                process(option, opt, argv[index + skip_count] if option.has_arg else None)
         else:
             break
-    return argv[index+skip_count:]
+    return argv[index + skip_count:]
