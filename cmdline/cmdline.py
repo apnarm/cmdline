@@ -24,8 +24,10 @@ def system_args(options: List[Option], process: Callable, error: Callable =None)
     import sys
 
     prog = sys.argv[0]
-    argv = cmdline_args(sys.argv[1:], options, process, error)
-    return [prog] + argv
+    args = sys.argv[1:]
+    process(None, prog, args)
+    args = cmdline_args(args, options, process, error)
+    sys.argv = tuple([prog] + list(args))
 
 
 
@@ -50,7 +52,6 @@ def cmdline_args(argv, options: List[Option], process: Callable, error: Callable
             if error is not None:
                 error(f"unknown {'short' if shortopt else 'long'} option - '{shortopt if shortopt is not None else longopt}'")
         return selected_option
-
 
     index = 0
     skip_count = 0

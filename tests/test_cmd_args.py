@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
-from cmdline import Option, cmdline_args
+from cmdline import Option, cmdline_args, system_args
 
 @pytest.fixture
 def options():
@@ -49,3 +49,18 @@ def test_cmd_args_list(options):
     assert len(instance.result_list) == 6
     assert isinstance(the_rest, list)
     assert the_rest == ['and', 'the', 'rest', '--help']
+
+
+def test_system_cmd(options):
+    import sys
+    argument_list = ('/bin/myscript', '--sign', 'leo', '--peak', '-62db', '-ad', '2021-02-14', '--verb', '-q', 'and', 'the', 'rest', '--help')
+    instance = BoundTest()
+
+    sys.argv = argument_list
+    system_args(options, instance.process, instance.error)
+
+    assert (options[4], 'sign', 'leo') in instance.result_list
+    assert len(instance.result_list) == 7
+    assert isinstance(sys.argv, tuple)
+    assert sys.argv == ('/bin/myscript', 'and', 'the', 'rest', '--help')
+
