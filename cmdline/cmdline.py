@@ -67,7 +67,7 @@ def cmdline_args(argv: Sequence[str], options: Sequence[Option], process: Callab
             option = select_option(None, longopt)
             if option.has_arg:
                 skip_count += 1
-            process(option, longopt, argv[index + 1] if option.has_arg else None)
+            process(option, longopt, argv[index + skip_count] if option.has_arg else None)
         elif arg.startswith('-'):
             skip_count = 0
             for opt in arg[1:]:
