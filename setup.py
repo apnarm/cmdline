@@ -5,7 +5,7 @@ except ImportError:
 
 setup(
     name='cmdline',
-    version='0.3',
+    version='0.4',
     description='mini partial command line parser',
     author='David Nugent',
     author_email='david.nugent@news.com.au',

@@ -40,12 +40,13 @@ def test_cmd_args_tuple(options):
 
 
 def test_cmd_args_list(options):
-    argument_list = ['--sign', 'leo', '--peak', '-62db', '-ad', '2021-02-14', '--verb', '-q', 'and', 'the', 'rest', '--help']
+    argument_list = ['--sign', 'leo', '--peak=-62db', '-ad', '2021-02-14', '--verb', '-q', 'and', 'the', 'rest', '--help']
     instance = BoundTest()
 
     the_rest = cmdline_args(argument_list, options, instance.process, instance.error)
 
     assert (options[4], 'sign', 'leo') in instance.result_list
+    assert (options[5], 'peak', '-62db') in instance.result_list
     assert len(instance.result_list) == 6
     assert isinstance(the_rest, list)
     assert the_rest == ['and', 'the', 'rest', '--help']
@@ -60,6 +61,7 @@ def test_system_cmd(options):
     system_args(options, instance.process, instance.error)
 
     assert (options[4], 'sign', 'leo') in instance.result_list
+    assert (options[5], 'peak', '-62db') in instance.result_list
     assert len(instance.result_list) == 7
     assert isinstance(sys.argv, tuple)
     assert sys.argv == ('/bin/myscript', 'and', 'the', 'rest', '--help')

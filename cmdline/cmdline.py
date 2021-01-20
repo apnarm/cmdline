@@ -47,9 +47,10 @@ def cmdline_args(argv: Sequence[str], options: Sequence[Option], process: Callab
             if short_opt is not None and short_opt == current_opt.short:
                 selected_option = current_opt
                 break
-            elif long_opt is not None and current_opt.long is not None and current_opt.long.startswith(long_opt):
-                selected_option = current_opt
-                break
+            elif long_opt is not None and current_opt.long is not None:
+                if current_opt.long.startswith(long_opt) or long_opt.startswith(current_opt.long):
+                    selected_option = current_opt
+                    break
         else:
             if error is not None:
                 error(f"unknown {'short' if short_opt else 'long'} option - "
@@ -65,9 +66,14 @@ def cmdline_args(argv: Sequence[str], options: Sequence[Option], process: Callab
             skip_count = 0
             longopt = arg[2:]
             option = select_option(None, longopt)
+            args = None
             if option.has_arg:
-                skip_count += 1
-            process(option, longopt, argv[index + skip_count] if option.has_arg else None)
+                if '=' in longopt:
+                    longopt, args = longopt.split('=', maxsplit=1)
+                else:
+                    skip_count += 1
+                    args = argv[index + skip_count]
+            process(option, longopt, args)
         elif arg.startswith('-'):
             skip_count = 0
             for opt in arg[1:]:

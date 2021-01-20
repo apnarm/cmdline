@@ -1,21 +1,25 @@
 # cmdline
-- a tiny unsophisticated "partial" command line parser
+- a tiny unsophisticated partial  command line parser
 
 ## Objective
-This package was written to allow parsing of parts of a command line,
-just pre-arguments to a command.
+This package was written to allow parsing of parts of a command line, just pre-commandline arguments to a command.
 
-It was written as a front-end pre-processor for arguments passed to Django's `manage.py`,
-not swallowing the entire command but allowing some options to be parsed and actioned before
-the main show, without interfering with the specific command being executed.
-This allows, for example, setting internal or environment variables, modifying or setting
-the DJANGO_SETTINGS_MODULE variable or any other use that can be imagined.
+It is originally written as a front-end command pre-processor for arguments passed to Django's `manage.py`, not 
+swallowing the entire command line but allowing some options to be parsed and actioned before the main show, 
+without interfering with the specific command being executed.
+
+This allows, for example, setting internal or environment variables, modifying or setting the 
+DJANGO_SETTINGS_MODULE variable or any other use that can be imagined.
 
 Parsing rules are a simplified version of what are accepted as POSIX rules for command line processing.
-Both short '-x' and long '--xoption' are supported. Short options can be concatenated, but to avoid
-ambiguity any option that requires an argument are consumed consecutively from subsequent arguments
-and cannot be appended to the short opt itself.
-Optional arguments are not supported.
+- Both short '-x' and long '--xoption' are supported
+- Short options can be concatenated, but to avoid ambiguity any option that requires an argument are consumed
+  consecutively from subsequent arguments and cannot be appended to the short opt itself
+- The form --longopt=argument is supported
+- Optional arguments are not supported 
+- Evaluation order is significant and is exactly as specified on the command line.
+- You can't mix arguments with command arguments, the parser quits when a command is encountered and
+  preserves all arguments following that command
 
 The Option class used in option specifications are NamedTuples which is very compact. 
 
