@@ -6,11 +6,14 @@ Purpose: add switches with actions to an existing command line processor
 Accepts an array of options with members as follows:
 """
 from typing import NamedTuple, Sequence, Callable
+from contextlib import contextmanager
+
 
 __all__ = (
     'Option',
     'cmdline_args',
-    'system_args'
+    'system_args',
+    'redirect_stdout',
 )
 
 
@@ -84,3 +87,13 @@ def cmdline_args(argv: Sequence[str], options: Sequence[Option], process: Callab
         else:
             break
     return argv[index + skip_count:]
+
+
+@contextmanager
+def redirect_stdout(stream):
+    stdout = sys.stdout
+    sys.stdout = stream
+    yield
+    sys.stdout.flush()
+    sys.stdout = stdout
+
