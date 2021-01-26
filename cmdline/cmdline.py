@@ -5,6 +5,7 @@ Purpose: add switches with actions to an existing command line processor
 
 Accepts an array of options with members as follows:
 """
+import sys
 from typing import NamedTuple, Sequence, Callable
 from contextlib import contextmanager
 
@@ -24,8 +25,6 @@ class Option(NamedTuple):
 
 
 def system_args(options: Sequence[Option], process: Callable, error: Callable = None):
-    import sys
-
     prog = sys.argv[0]
     args = sys.argv[1:]
     process(None, prog, args)
