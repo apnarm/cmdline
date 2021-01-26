@@ -15,6 +15,7 @@ __all__ = (
     'cmdline_args',
     'system_args',
     'redirect_stdout',
+    'add_pythonpath',
 )
 
 
@@ -96,3 +97,10 @@ def redirect_stdout(stream):
     sys.stdout.flush()
     sys.stdout = stdout
 
+
+def add_pythonpath(*args, prepend=True):
+    pythonpath = {p: None for p in args} if prepend else {}
+    pythonpath.update({p: None for p in sys.path})
+    pythonpath.update({} if prepend else {p: None for p in args})
+    sys.path = list(pythonpath.keys())
+    return sys.path
