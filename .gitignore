@@ -68,3 +68,4 @@ ENV/
 tags
 
 .env
+/pyproject.toml

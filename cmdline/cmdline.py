@@ -99,8 +99,8 @@ def redirect_stdout(stream):
 
 
 def add_pythonpath(*args, prepend=True):
-    pythonpath = {p: None for p in args} if prepend else {}
+    pythonpath = {str(p): None for p in args} if prepend else {}
     pythonpath.update({p: None for p in sys.path})
-    pythonpath.update({} if prepend else {p: None for p in args})
+    pythonpath.update({} if prepend else {str(p): None for p in args})
     sys.path = list(pythonpath.keys())
     return sys.path

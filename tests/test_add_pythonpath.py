@@ -2,7 +2,6 @@
 import sys
 from pathlib import Path
 
-import pytest
 from cmdline import add_pythonpath
 
 
