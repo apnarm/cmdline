@@ -30,7 +30,7 @@ def system_args(options: Sequence[Option], process: Callable, error: Callable = 
     args = sys.argv[1:]
     process(None, prog, args)
     args = cmdline_args(args, options, process, error)
-    sys.argv = tuple([prog] + list(args))
+    sys.argv = [prog] + list(args)
 
 
 def cmdline_args(argv: Sequence[str], options: Sequence[Option], process: Callable, error: Callable = None) \
@@ -56,12 +56,15 @@ def cmdline_args(argv: Sequence[str], options: Sequence[Option], process: Callab
                     break
         else:
             if error is not None:
-                error(f"unknown {'short' if short_opt else 'long'} option - "
-                      f"'{short_opt if short_opt is not None else long_opt}'")
+                if short_opt:
+                    error(f"unknown short option '-{short_opt}'")
+                else:
+                    error(f"unknown long option  '--{long_opt}'")
         return selected_option
 
     index = 0
     skip_count = 0
+    saved_args = []
     for index, arg in enumerate(argv):
         if skip_count:
             skip_count -= 1
@@ -69,24 +72,30 @@ def cmdline_args(argv: Sequence[str], options: Sequence[Option], process: Callab
             skip_count = 0
             longopt = arg[2:]
             option = select_option(None, longopt)
-            args = None
-            if option.has_arg:
-                if '=' in longopt:
-                    longopt, args = longopt.split('=', maxsplit=1)
-                else:
-                    skip_count += 1
-                    args = argv[index + skip_count]
-            process(option, longopt, args)
+            if option is None:
+                saved_args.append(f"--{longopt}")
+            else:
+                args = None
+                if option.has_arg:
+                    if '=' in longopt:
+                        longopt, args = longopt.split('=', maxsplit=1)
+                    else:
+                        skip_count += 1
+                        args = argv[index + skip_count]
+                process(option, longopt, args)
         elif arg.startswith('-'):
             skip_count = 0
             for opt in arg[1:]:
                 option = select_option(opt, None)
-                if option.has_arg:
-                    skip_count += 1
-                process(option, opt, argv[index + skip_count] if option.has_arg else None)
+                if option is None:
+                    saved_args.append(f"-{opt}")
+                else:
+                    if option.has_arg:
+                        skip_count += 1
+                    process(option, opt, argv[index + skip_count] if option.has_arg else None)
         else:
             break
-    return argv[index + skip_count:]
+    return saved_args + argv[index + skip_count:]
 
 
 @contextmanager
